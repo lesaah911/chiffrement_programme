@@ -1,6 +1,5 @@
 import os
-
-
+import datetime
 crypter=[]
 base_caracter=[
     "!", "\"", "#", "$", "%", "&", "'",
@@ -17,13 +16,6 @@ base_alphabet=[
     "a","b","c","d","e","f","g","h","i","j","k","l","m",
     "n","o","p","q","r","s","t","u","v","w","x","y","z"
 ]
-base_caracter_only=["!", "\"", "#", "$", "%", "&", "'",
-    "(", ")", "*", "+", ",", "-", ".",
-    "/", ":", ";", "<", "=", ">", "?",
-    "@", "[", "\\", "]", "^", "_", "`",
-    "{", "|", "}", "~"]
-
-tab_crypt=[] # stocker les valeurs crypter pour le decryptage
 
 # Fonction de cryptage
 def algo_crypter(texte,key):
@@ -33,80 +25,76 @@ def algo_crypter(texte,key):
                 k=base_alphabet.index(element)
                 element=base_caracter[(key+k)%len(base_caracter)]
                 crypter=crypter+element
-                tab_crypt.append(element)
+            
         elif element.isdigit():
             element=(key+int(element))%10
             crypter=crypter+str(element)
-            tab_crypt.append(element)
+        
         else:
             crypter+=element
 
     return crypter
 
 # Fonction de Décryptage
-def algo_decrypter(tab_crypt,key):
+def algo_decrypter(crypter,key):
  decrypter=""
  i=0
  while i<len(crypter):
         if i+1<len(crypter):
-            k=crypter[i,i+1]
-            if k in base_caracter:
+            deux_car=crypter[i:i+2]
+            if deux_car in base_caracter:
+             k=base_caracter.index(deux_car)
              element=base_alphabet[(k-key)%len(base_alphabet)]
              decrypter=decrypter+element
-             i+=2
+             i=i+2
              continue
-            
-        # Caractère simple
-        element = crypter[i]
-        
+        element=crypter[i]
         if element in base_caracter:
-            k = base_caracter.index(element)
-            decrypter += base_alphabet[(k - key) % len(base_alphabet)]
+                k=base_caracter.index(element)
+                element=base_alphabet[(k-key)%len(base_alphabet)]
+                decrypter=decrypter+element
         elif element.isdigit():
-            decrypter += str((int(element) - key) % 10)
+                new_element=(int(element)-key)%10
+                decrypter=decrypter+str(new_element)
+                
         else:
-            decrypter += element
-        
-        i += 1
-    
+                decrypter+=element
+        i=i+1
+
+
  return decrypter
 
 # Debut du code
 choix=input("Voulez vous 'chiffrer' ou 'déchiffer' ")
 
 if choix.lower()=="chiffrer":
-    key=int(input("entrer la clé:"))
+    key=int(input("entrer la clé; (entier naturel):"))
     dossier="C:/Users/Azriel/Desktop/python projet"
     contenue=os.listdir(dossier)
     for element in contenue:
         if element.endswith("txt"):
             print("fichier trouvé")
             chemin_fichier=os.path.join(dossier,element)
-            break
-    print(element)
-    with open (chemin_fichier,"r",encoding="utf-8") as f:
-        lignes=f.read()
-    final= algo_crypter(lignes,key)
-    with open(chemin_fichier,"w",encoding="utf-8") as f:
-     f.write(final)
+            print(element)
+            with open (chemin_fichier,"r",encoding="utf-8") as f:
+                lignes=f.read()
+            final= algo_crypter(lignes,key)
+            print("texte chiffré: ",final)
 elif choix.lower()=="dechiffrer":
-    key=int(input("entrer la clé:"))
+    key=int(input("entrer la clé; (entier naturel):"))
     dossier="C:/Users/Azriel/Desktop/python projet"
     contenue=os.listdir(dossier)
     for element in contenue:
         if element.endswith("txt"):
             print("fichier trouvé")
             chemin_fichier=os.path.join(dossier,element)
-            break
-    print(element)
-    with open (chemin_fichier,"r",encoding="utf-8") as f:
-        lignes=f.read()
-    final= algo_decrypter(lignes,key)
-    with open(chemin_fichier,"w",encoding="utf-8") as f:
-     f.write(final)
+            print(element)
+            with open (chemin_fichier,"r",encoding="utf-8") as f:
+                lignes=f.read()
+            final= algo_decrypter(lignes,key)
+            print("texte décrypter: ",final)
 else:
     print("Entrer Invalide")
 
 # Affichage
-print("texte modifié: ",final)
-print(tab_crypt)
+

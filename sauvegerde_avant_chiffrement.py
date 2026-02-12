@@ -1,6 +1,6 @@
 import os
-
-
+import datetime
+import shutil
 crypter=[]
 base_caracter=[
     "!", "\"", "#", "$", "%", "&", "'",
@@ -17,56 +17,55 @@ base_alphabet=[
     "a","b","c","d","e","f","g","h","i","j","k","l","m",
     "n","o","p","q","r","s","t","u","v","w","x","y","z"
 ]
-base_caracter_only=["!", "\"", "#", "$", "%", "&", "'",
-    "(", ")", "*", "+", ",", "-", ".",
-    "/", ":", ";", "<", "=", ">", "?",
-    "@", "[", "\\", "]", "^", "_", "`",
-    "{", "|", "}", "~"]
-tab_crypt=[]
-print(len(base_alphabet))
+
+# Fonction de cryptage
 def algo_crypter(texte,key):
-
-
-    
-    k=0
-    j=0
     crypter=""
     for element in texte:
         if element in base_alphabet:
                 k=base_alphabet.index(element)
                 element=base_caracter[(key+k)%len(base_caracter)]
                 crypter=crypter+element
-                tab_crypt.append(element)
+                
         elif element.isdigit():
             element=(key+int(element))%10
             crypter=crypter+str(element)
-            tab_crypt.append(element)
+            
         else:
             crypter+=element
 
     return crypter
 
-def algo_decrypter(tab_crypt,key):
- k=0
- j=0
+# Fonction de Décryptage
+def algo_decrypter(crypter,key):
  decrypter=""
- for element in tab_crypt:
+ i=0
+ while i<len(crypter):
+        if i+1<len(crypter):
+            deux_car=crypter[i:i+2]
+            if deux_car in base_caracter:
+             k=base_caracter.index(deux_car)
+             element=base_alphabet[(k-key)%len(base_alphabet)]
+             decrypter=decrypter+element
+             i=i+2
+             continue
+        element=crypter[i]
         if element in base_caracter:
-            for i in range(len(base_caracter)):
-                if base_caracter[i]==element:
-                    k=i
-
-            element=base_alphabet[(k-key)%len(base_alphabet)]
-            decrypter=decrypter+element
+                k=base_caracter.index(element)
+                element=base_alphabet[(k-key)%len(base_alphabet)]
+                decrypter=decrypter+element
         elif element.isdigit():
                 new_element=(int(element)-key)%10
                 decrypter=decrypter+str(new_element)
+                
         else:
-            decrypter+=element
+                decrypter+=element
+        i=i+1
 
 
  return decrypter
 
+# Debut du code
 choix=input("Voulez vous 'chiffrer' ou 'déchiffer' ")
 
 if choix.lower()=="chiffrer":
@@ -75,15 +74,16 @@ if choix.lower()=="chiffrer":
     contenue=os.listdir(dossier)
     for element in contenue:
         if element.endswith("txt"):
-            print("fichier trouvé")
             chemin_fichier=os.path.join(dossier,element)
-            break
-    print(element)
-    with open (chemin_fichier,"r",encoding="utf-8") as f:
-        lignes=f.read()
-    final= algo_crypter(lignes,key)
-    with open(chemin_fichier,"w",encoding="utf-8") as f:
-     f.write(final)
+            os.makedirs("C:/Users/Azriel/Desktop/python projet/Sauvegardes", exist_ok=True)
+            shutil.copy(chemin_fichier,"C:/Users/Azriel/Desktop/python projet/Sauvegardes")
+            print("fichier trouvé")
+            print(element)
+            with open (chemin_fichier,"r",encoding="utf-8") as f:
+                lignes=f.read()
+            final= algo_crypter(lignes,key)
+            with open(chemin_fichier,"w",encoding="utf-8") as f:
+                f.write(final)
 elif choix.lower()=="dechiffrer":
     key=int(input("entrer la clé:"))
     dossier="C:/Users/Azriel/Desktop/python projet"
@@ -92,16 +92,14 @@ elif choix.lower()=="dechiffrer":
         if element.endswith("txt"):
             print("fichier trouvé")
             chemin_fichier=os.path.join(dossier,element)
-            break
-    print(element)
-    with open (chemin_fichier,"r",encoding="utf-8") as f:
-        lignes=f.read()
-    final= algo_decrypter(lignes,key)
-    with open(chemin_fichier,"w",encoding="utf-8") as f:
-     f.write(final)
+            print(element)
+            with open (chemin_fichier,"r",encoding="utf-8") as f:
+                lignes=f.read()
+            final= algo_decrypter(lignes,key)
+            with open(chemin_fichier,"w",encoding="utf-8") as f:
+               f.write(final)
+else:
+    print("Entrer Invalide")
 
-print(final)
-print(tab_crypt)
-
-
-#parcourir les dossiers
+# Affichage
+print("texte modifié: ",final)
